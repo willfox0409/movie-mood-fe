@@ -6,7 +6,16 @@ export default {
       fontFamily: {
         bitcount: ['"Bitcount Single"', 'system-ui'],
       },
+      animation: {
+        'fade-in': 'fadeIn 3s ease-out forwards',
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: 0 },
+          '100%': { opacity: 1 },
+        },
+      },
     },
   },
   plugins: [require("daisyui")],
-}
+};
