@@ -1,0 +1,80 @@
+export const moods = [
+  "Animal Bad Guy",
+  "Batshit",
+  "Bittersweet Triumph",
+  "Black Heroes",
+  "The 'Blank' From Hell",
+  "Break My Heart",
+  "Cabin Fever",
+  "Country-Hopping",
+  "Coming of Age",
+  "Crime with Laughs",
+  "Creepy Not Gory",
+  "Dark & Twisty",
+  "Epic & Sweeping",
+  "Fun horror",
+  "In the Wilderness",
+  "Indie Adventure",
+  "International Masterpiece",
+  "Junk Sci-Fi",
+  "Junk Thrills",
+  "Light & Feel Good",
+  "Liminal & Longing",
+  "Loners and Misfits",
+  "Modern Film Noir",
+  "On a Boat",
+  "Poetic Script",
+  "Proper Scary",
+  "Re-watchable",
+  "Romantic and Real",
+  "Sad But Hopeful",
+  "Slow Burn",
+  "So Bad It's Good",
+  "Star Making Performance",
+  "Stephen-King-esque",
+  "Trippy Surreal",
+  "Unreliable Narrator",
+  "Villain is the Best Part",
+  "Western Sans Cowboy",
+  "Whimsy & Magic"
+];
+
+export const genres = [
+  'Any Genre',
+  'Action',
+  'Animated',
+  'Blockbuster',
+  'Comedy',
+  'Crime',
+  'Documentary',
+  'Drama',
+  'Family',
+  'Fantasy',
+  'Horror',
+  'International',
+  'Mystery',
+  'Period-Piece',
+  'Romance',
+  'Sci-Fi',
+  'Thriller'
+];
+
+export const decades = [
+  'Any Decade',
+  '1960s',
+  '1970s',
+  '1980s',
+  '1990s',
+  '2000s',
+  '2010s',
+  '2020s',
+  'Pre 1990',
+  'Post 1990'
+]
+
+export const runtimes = [
+  'Any Runtime',
+  'Under 90 mins',
+  '90–120 mins',
+  '2+ hours'
+];
