@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import useAuth from '../hooks/useAuth';
+import useAuth from '../hooks/UseAuth';
 
 function SignupPanel({ onCancel }) {
   const { signup, error } = useAuth();
