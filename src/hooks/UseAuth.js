@@ -32,7 +32,29 @@ function useAuth() {
     }
   };
 
-  return { login, error };
+  const signup = async (username, email, password) => {
+    try {
+      const response = await fetch('http://localhost:3000/api/v1/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) throw new Error(data.errors || 'Signup failed');
+
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('username', username); 
+      navigate('/recommendations');
+      return data;
+    } catch (err) {
+      setError(err.message);
+      return null;
+    }
+  };
+
+  return { login, signup, error };
 }
 
 export default useAuth;
