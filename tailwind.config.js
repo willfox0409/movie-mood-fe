@@ -5,6 +5,8 @@ export default {
     extend: {
       fontFamily: {
         bitcount: ['"Bitcount Single"', 'system-ui'],
+        geo: ['"Geo"', 'sans-serif'],
+        rubik: ['"Rubik Iso"', 'system-ui', 'sans-serif'],
       },
       animation: {
         'fade-in': 'fadeIn 3s ease-out forwards',
