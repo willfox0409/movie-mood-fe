@@ -30,7 +30,7 @@
 .sprite-animation {
   width: 32px;
   height: 32px;
-  background-image: url('/animations/8-bit-sprite-sheet.png');
+  /* background-image: url('/animations/8-bit-sprite-sheet.png'); */
   background-repeat: no-repeat;
   animation: sprite-wiggle 1s steps(6) infinite;
 }
