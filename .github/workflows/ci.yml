@@ -43,5 +43,6 @@ jobs:
           node -e "console.log('node:crypto.createHash exists?', !!require('node:crypto').createHash)"
           node -e "console.log('globalThis.crypto present?', !!globalThis.crypto, 'has hash?', !!(globalThis.crypto && globalThis.crypto.hash))"
 
-      - name: Run Vite build
-        run: npm run build
+      - name: Run Vite build (CI-safe)
+        run: |
+          node -e "globalThis.crypto=undefined; require('child_process').execSync('npm run build',{stdio:'inherit'})"
