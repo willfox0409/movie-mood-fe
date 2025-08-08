@@ -9,16 +9,28 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use Node.js 18
+      - name: Use Node.js 18.20.3
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: '18.20.3'
           cache: 'npm'
+
       - name: Clean install
         run: npm ci
+
+      - name: Print versions
+        run: |
+          node -v
+          npm -v
+          npm ls vite
+          npm ls postcss
+          npm ls tailwindcss
+          npm ls daisyui
+          node -e "console.log('createHash exists?', !!require('node:crypto').createHash)"
+          node -e "console.log('globalThis.crypto.hash exists?', !!(globalThis.crypto && globalThis.crypto.hash))"
+
       - name: Build
         run: npm run build
