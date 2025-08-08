@@ -18,6 +18,8 @@ function RecommendationsPage() {
   const [recommendation, setRecommendation] = useState(null);
   const [showWelcome, setShowWelcome] = useState(true);
   const [fadeOut, setFadeOut] = useState(false);
+  const [recBatch, setRecBatch] = useState(null); // holds { choices: [...] }
+  const [recIndex, setRecIndex] = useState(0);    // index into choices
 
   // Scroll smoothly to genre dropdown when revealed
   useEffect(() => {
