@@ -18,23 +18,6 @@
   font-family: 'Bitcount', monospace;
 }
 
-@keyframes sprite-wiggle {
-  0%   { background-position:   0px 0; }
-  20%  { background-position: -32px 0; }
-  40%  { background-position: -64px 0; }
-  60%  { background-position: -96px 0; }
-  80%  { background-position: -128px 0; }
-  100% { background-position: -160px 0; }
-}
-
-.sprite-animation {
-  width: 32px;
-  height: 32px;
-  /* background-image: url('/animations/8-bit-sprite-sheet.png'); */
-  background-repeat: no-repeat;
-  animation: sprite-wiggle 1s steps(6) infinite;
-}
-
 .text-shadow-outline {
   text-shadow: 1px 1px 0 #000;
 }
