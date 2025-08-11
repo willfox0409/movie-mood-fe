@@ -13,28 +13,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use Node.js 18.20.3
+      - name: Use Node.js 20.18.0
         uses: actions/setup-node@v4
         with:
-          node-version: '18.20.3'
+          node-version: '20.18.0'
           cache: 'npm'
           cache-dependency-path: package-lock.json
 
       - name: Install deps
         run: npm ci
 
-      - name: Sanity check (before build)
-        run: |
-          node -e "console.log('node:crypto.webcrypto?', !!require('node:crypto').webcrypto)"
-          node -e "console.log('globalThis.crypto before?', !!globalThis.crypto)"
-
-      - name: Grep for crypto polyfills
-        run: |
-          grep -RIn "globalThis\\.crypto" || true
-          grep -RIn "crypto\\s*=" || true
-
-      - name: Build (CI-safe)
-        run: npm run build:ci
+      - name: Build (FE)
+        run: npm run build
 
       - name: Upload build artifact
         if: success()
