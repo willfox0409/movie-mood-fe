@@ -13,14 +13,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Optional: quick tree so you can see the repo layout in logs
-      - name: Show repo tree
-        run: |
-          pwd
-          ls -la
-          echo "---- movie-mood-fe ----"
-          ls -la movie-mood-fe || true
-
       - name: Use Node.js 18.20.3
         uses: actions/setup-node@v4
         with:
@@ -28,17 +20,19 @@ jobs:
           cache: 'npm'
           cache-dependency-path: package-lock.json
 
-      - name: Install deps (FE)
+      - name: Install deps
         run: npm ci
 
       - name: Sanity check webcrypto
         run: |
-          node -e "console.log('has webcrypto?', !!require('node:crypto').webcrypto);"
+          node -e "console.log('node:crypto.webcrypto?', !!require('node:crypto').webcrypto)"
+          node -e "console.log('globalThis.crypto present before?', !!globalThis.crypto)"
+          node -e "globalThis.crypto && console.log('keys:', Object.keys(globalThis.crypto))"
 
-      - name: Build (FE)
-        run: npm run build
+      - name: Build (force no webcrypto)
+        run: |
+          node -e "delete globalThis.crypto; require('child_process').execSync('npm run build',{stdio:'inherit'})"
 
-      # Optional: save dist as artifact
       - name: Upload build artifact
         if: success()
         uses: actions/upload-artifact@v4
