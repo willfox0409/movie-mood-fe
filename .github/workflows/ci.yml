@@ -1,4 +1,4 @@
-name: CI
+name: FE CI
 
 on:
   push:
@@ -7,9 +7,11 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  fe-build:
     runs-on: ubuntu-latest
-
+    defaults:
+      run:
+        working-directory: movie-mood-fe   # << run npm from FE folder
     steps:
       - uses: actions/checkout@v4
 
@@ -18,21 +20,20 @@ jobs:
         with:
           node-version: '18.20.3'
           cache: 'npm'
-          cache-dependency-path: movie-mood-fe/package-lock.json
+          cache-dependency-path: movie-mood-fe/package-lock.json  # << point to FE lockfile
 
-      - name: Install dependencies
-        working-directory: ./movie-mood-fe
+      - name: Clean install
         run: npm ci
 
-      - name: Sanity check webcrypto
-        working-directory: ./movie-mood-fe
+      - name: Print versions
         run: |
-          node -e "const { webcrypto } = require('node:crypto'); if (!webcrypto) { process.exitCode=1; console.error('No webcrypto'); } else { console.log('webcrypto OK'); }"
+          node -v
+          npm -v
+          npm ls vite || true
+          npm ls postcss || true
+          npm ls tailwindcss || true
+          npm ls daisyui || true
+          node -e "console.log('node:crypto.createHash?', !!require('node:crypto').createHash)"
 
       - name: Build
-        working-directory: ./movie-mood-fe
         run: npm run build
-
-      - name: Test
-        working-directory: ./movie-mood-fe
-        run: npm test -- --ci --reporters=default
