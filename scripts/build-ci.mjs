@@ -1,23 +1,34 @@
 // scripts/build-ci.mjs
+import { createHash } from 'node:crypto';
 
-// CI-only hardening for Vite/PostCSS url hashing that sometimes reaches for `crypto.hash`
-import { webcrypto as nodeWebcrypto, createHash } from 'node:crypto';
+function logCrypto(phase) {
+  const c = globalThis.crypto;
+  const keys = c ? Object.getOwnPropertyNames(c).sort().join(', ') : '(none)';
+  console.log(`[build-ci] ${phase} | crypto present?`, !!c, '| keys:', keys);
+}
 
-// Nuke any pre-existing webcrypto that might confuse deps
-try { delete globalThis.crypto; } catch {}
+// BEFORE we touch anything
+logCrypto('BEFORE');
 
-// Provide a minimal shim so code that does `crypto.hash('sha256', data)` works.
-// We emulate `hash(algo, data)` -> Buffer
-globalThis.crypto = {
-  subtle: undefined,
-  getRandomValues: undefined,
+// Install an immutable crypto with a Node-backed hash()
+const shim = {
+  subtle: undefined,          // force libs to avoid webcrypto path
+  getRandomValues: undefined, // not needed for build
   hash: (algo, input) => {
     const buf = Buffer.isBuffer(input) ? input : Buffer.from(String(input));
     return createHash(algo).update(buf).digest();
   },
-  // Optional: expose webcrypto if something probes for it but doesn’t depend on subtle
-  ...nodeWebcrypto, // safe to spread; consumers checking `crypto.subtle` will still see undefined above
 };
 
+Object.defineProperty(globalThis, 'crypto', {
+  value: Object.freeze(shim),
+  writable: false,
+  configurable: false,
+  enumerable: true,
+});
+
+logCrypto('AFTER SET');
+
+// Run the Vite build
 const { build } = await import('vite');
 await build();
