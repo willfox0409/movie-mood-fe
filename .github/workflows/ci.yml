@@ -9,31 +9,34 @@ on:
 jobs:
   fe-build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: movie-mood-fe   # << run npm from FE folder
+
     steps:
       - uses: actions/checkout@v4
+
+      # Debug repo layout so we know where package-lock.json actually is
+      - name: List tree
+        run: |
+          pwd
+          ls -la
+          echo "--- movie-mood-fe ---"
+          ls -la movie-mood-fe || true
 
       - name: Use Node.js 18.20.3
         uses: actions/setup-node@v4
         with:
           node-version: '18.20.3'
           cache: 'npm'
-          cache-dependency-path: movie-mood-fe/package-lock.json  # << point to FE lockfile
+          # Match either a root lockfile or one under movie-mood-fe/
+          cache-dependency-path: |
+            package-lock.json
+            movie-mood-fe/package-lock.json
+            **/package-lock.json
 
-      - name: Clean install
+      # If your FE is in the subfolder, cd there for npm steps
+      - name: Install
+        working-directory: movie-mood-fe
         run: npm ci
 
-      - name: Print versions
-        run: |
-          node -v
-          npm -v
-          npm ls vite || true
-          npm ls postcss || true
-          npm ls tailwindcss || true
-          npm ls daisyui || true
-          node -e "console.log('node:crypto.createHash?', !!require('node:crypto').createHash)"
-
       - name: Build
+        working-directory: movie-mood-fe
         run: npm run build
