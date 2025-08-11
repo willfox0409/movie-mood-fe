@@ -13,12 +13,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Debug repo layout so we know where package-lock.json actually is
-      - name: List tree
+      # Optional: quick tree so you can see the repo layout in logs
+      - name: Show repo tree
         run: |
           pwd
           ls -la
-          echo "--- movie-mood-fe ---"
+          echo "---- movie-mood-fe ----"
           ls -la movie-mood-fe || true
 
       - name: Use Node.js 18.20.3
@@ -26,17 +26,25 @@ jobs:
         with:
           node-version: '18.20.3'
           cache: 'npm'
-          # Match either a root lockfile or one under movie-mood-fe/
-          cache-dependency-path: |
-            package-lock.json
-            movie-mood-fe/package-lock.json
-            **/package-lock.json
+          cache-dependency-path: movie-mood-fe/package-lock.json
 
-      # If your FE is in the subfolder, cd there for npm steps
-      - name: Install
+      - name: Install deps (FE)
         working-directory: movie-mood-fe
         run: npm ci
 
-      - name: Build
+      - name: Sanity check webcrypto
+        working-directory: movie-mood-fe
+        run: |
+          node -e "console.log('has webcrypto?', !!require('node:crypto').webcrypto);"
+
+      - name: Build (FE)
         working-directory: movie-mood-fe
         run: npm run build
+
+      # Optional: save dist as artifact
+      - name: Upload build artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fe-dist
+          path: movie-mood-fe/dist
