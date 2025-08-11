@@ -23,15 +23,18 @@ jobs:
       - name: Install deps
         run: npm ci
 
-      - name: Sanity check webcrypto
+      - name: Sanity check (before build)
         run: |
           node -e "console.log('node:crypto.webcrypto?', !!require('node:crypto').webcrypto)"
-          node -e "console.log('globalThis.crypto present before?', !!globalThis.crypto)"
-          node -e "globalThis.crypto && console.log('keys:', Object.keys(globalThis.crypto))"
+          node -e "console.log('globalThis.crypto before?', !!globalThis.crypto)"
 
-      - name: Build (force no webcrypto)
+      - name: Grep for crypto polyfills
         run: |
-          node -e "delete globalThis.crypto; require('child_process').execSync('npm run build',{stdio:'inherit'})"
+          grep -RIn "globalThis\\.crypto" || true
+          grep -RIn "crypto\\s*=" || true
+
+      - name: Build (CI-safe)
+        run: npm run build:ci
 
       - name: Upload build artifact
         if: success()
