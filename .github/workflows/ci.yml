@@ -1,4 +1,4 @@
-name: CI
+name: FE CI
 
 on:
   push:
@@ -7,42 +7,28 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  fe-build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use Node.js 18.20.3
+      - name: Use Node.js 20.18.0
         uses: actions/setup-node@v4
         with:
-          node-version: '18.20.3'
+          node-version: '20.18.0'
           cache: 'npm'
+          cache-dependency-path: package-lock.json
 
-      - name: Clean install
+      - name: Install deps
         run: npm ci
 
-      - name: Print versions
-        run: |
-          node -v
-          npm -v
-          npm ls vite
-          npm ls postcss
-          npm ls tailwindcss
-          npm ls daisyui
-          node -e "console.log('createHash exists?', !!require('node:crypto').createHash)"
-          node -e "console.log('globalThis.crypto.hash exists?', !!(globalThis.crypto && globalThis.crypto.hash))"
+      - name: Build (FE)
+        run: npm run build
 
-      - name: Print versions
-        run: |
-          node -v
-          npm -v
-          npm ls vite
-          npm ls postcss
-          npm ls tailwindcss
-          npm ls daisyui
-          node -e "console.log('node:crypto.createHash exists?', !!require('node:crypto').createHash)"
-          node -e "console.log('globalThis.crypto present?', !!globalThis.crypto, 'has hash?', !!(globalThis.crypto && globalThis.crypto.hash))"
-
-      - name: Run Vite build (CI-safe)
-        run: |
-          node -e "globalThis.crypto=undefined; require('child_process').execSync('npm run build',{stdio:'inherit'})"
+      - name: Upload build artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fe-dist
+          path: dist
