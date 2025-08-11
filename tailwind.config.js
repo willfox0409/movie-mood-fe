@@ -6,6 +6,7 @@ export default {
       fontFamily: {
         bitcount: ['"Bitcount Single"', 'system-ui'],
         geo: ['"Geo"', 'sans-serif'],
+        sans: ['"Permanent Marker"', 'sans-serif'],
         rubik: ['"Rubik Iso"', 'system-ui', 'sans-serif'],
       },
       animation: {
