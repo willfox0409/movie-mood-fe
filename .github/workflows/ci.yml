@@ -29,16 +29,13 @@ jobs:
           cache-dependency-path: package-lock.json
 
       - name: Install deps (FE)
-        working-directory: movie-mood-fe
         run: npm ci
 
       - name: Sanity check webcrypto
-        working-directory: movie-mood-fe
         run: |
           node -e "console.log('has webcrypto?', !!require('node:crypto').webcrypto);"
 
       - name: Build (FE)
-        working-directory: movie-mood-fe
         run: npm run build
 
       # Optional: save dist as artifact
@@ -47,4 +44,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: fe-dist
-          path: movie-mood-fe/dist
+          path: dist
