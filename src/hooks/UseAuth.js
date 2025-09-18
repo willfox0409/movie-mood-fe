@@ -8,7 +8,7 @@ function useAuth() {
 
   const login = async (username, password) => {
     try {
-      const data = await apiFetch("/login", {
+      const data = await apiFetch("/api/v1/login", {
         method: "POST",
         body: JSON.stringify({ username, password }),
       });
@@ -26,7 +26,7 @@ function useAuth() {
 
   const signup = async (username, email, password) => {
     try {
-      const data = await apiFetch("/signup", {
+      const data = await apiFetch("/api/v1/signup", {
         method: "POST",
         body: JSON.stringify({ username, email, password }),
       });
