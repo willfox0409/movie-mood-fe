@@ -10,9 +10,7 @@ function useAuth() {
     try {
       const data = await apiFetch("/api/v1/login", {
         method: "POST",
-        body: JSON.stringify({
-          user: { username, password }
-        }),
+        body: { user: { username, password } },
       });
 
       localStorage.setItem("token", data.token);
@@ -30,9 +28,7 @@ function useAuth() {
     try {
       const data = await apiFetch("/api/v1/signup", {
         method: "POST",
-        body: JSON.stringify({
-          user: { username, email, password }
-        }),
+        body: { user: { username, email, password } },
       });
 
       localStorage.setItem("token", data.token);
