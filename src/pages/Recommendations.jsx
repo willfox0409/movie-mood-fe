@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { moods, genres, decades, runtimes } from '../assets/dropdownOptions';
 import MovieCard from '../components/MovieCard';
 import { Typewriter } from 'react-simple-typewriter';
+import { apiFetch } from '../api';
 
 function RecommendationsPage() {
   const username = localStorage.getItem('username');
@@ -41,8 +42,6 @@ function RecommendationsPage() {
   }, []);
 
   const handleGetRecommendation = async () => {
-    const token = localStorage.getItem('token');
-
     setHasSubmitted(true);          // hide selectors
     setRecBatch(null);
     setRecIndex(0);
@@ -50,28 +49,17 @@ function RecommendationsPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3000/api/v1/recommendations', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
+      const data = await apiFetch("/recommendations", {
+        method: "POST",
+        body: {
           username,
           mood: selectedMood,
           genre: selectedGenre,
           decade: selectedDecade,
-          runtime_filter: selectedRuntimeFilter
-        })
+          runtime_filter: selectedRuntimeFilter,
+        },
       });
 
-      if (!response.ok) {
-        console.error('🚫 Failed to fetch recommendation batch');
-        setHasSubmitted(false); // show selectors again on failure
-        return;
-      }
-
-      const data = await response.json();
       const batch = data?.data?.attributes;
 
       if (batch?.choices?.length > 0) {
@@ -79,57 +67,48 @@ function RecommendationsPage() {
         setRecIndex(0);
         setRecommendation(batch.choices[0]);
 
-        // smooth scroll to the results area
         requestAnimationFrame(() => {
-          resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
         });
       } else {
-        console.warn('No choices returned from backend.');
+        console.warn("No choices returned from backend.");
         setHasSubmitted(false);
       }
     } catch (err) {
-      console.error('❌ Network or server error:', err);
+      console.error("❌ Failed to fetch recommendation batch:", err);
       setHasSubmitted(false);
     } finally {
       setIsLoading(false);
     }
   };
 
-const handleSaveMovie = async () => {
-  const token = localStorage.getItem('token');
-  if (!recommendation) return;
+  const handleSaveMovie = async () => {
+    if (!recommendation) return { ok: false, status: 0 };
 
-  // Build payload: use movie_id if we have it; otherwise tmdb path
-  const body = recommendation.movie_id
-    ? { saved_movie: { movie_id: recommendation.movie_id } }
-    : {
-        saved_movie: {
-          tmdb_id: recommendation.tmdb_id,
-          title: recommendation.title,
-          poster_url: recommendation.poster_url,
-          description: recommendation.description,
-          runtime: recommendation.runtime_minutes
-        }
-      };
+    const body = recommendation.movie_id
+      ? { saved_movie: { movie_id: recommendation.movie_id } }
+      : {
+          saved_movie: {
+            tmdb_id: recommendation.tmdb_id,
+            title: recommendation.title,
+            poster_url: recommendation.poster_url,
+            description: recommendation.description,
+            runtime: recommendation.runtime_minutes,
+          },
+        };
 
-  try {
-    const res = await fetch('http://localhost:3000/api/v1/saved_movies', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(body)
-    });
-
-    // <-- IMPORTANT: return it so the child can read res.ok / res.status
-    return res;
-  } catch (err) {
-    console.error('⚠️ Network error saving movie:', err);
-    // Return a fake-ish Response-like object so the child can handle it uniformly
-    return { ok: false, status: 0 };
-  }
-};
+    try {
+      const data = await apiFetch("/saved_movies", {
+        method: "POST",
+        body,
+      });
+      // return a Response-like shape so MovieCard can keep checking ok/status
+      return { ok: true, status: 200, data };
+    } catch (err) {
+      console.error("⚠️ Failed to save movie:", err);
+      return { ok: false, status: err?.status || 0 };
+    }
+  };
 
   const handleReroll = () => {
     if (!recBatch?.choices) return;
@@ -142,8 +121,6 @@ const handleSaveMovie = async () => {
     setRecommendation(recBatch.choices[next]);
   };
 
-// ...imports and state stay the same
-
   return (
     <div
       className="
@@ -152,21 +129,16 @@ const handleSaveMovie = async () => {
       "
       style={{ backgroundImage: "url('/images/summer_suburb_dusk.png')" }}
     >
-      {/* Gradient overlay in bottom-left */}
-      {/* <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-black/40 to-transparent pointer-events-none"></div> */}
-
       {showWelcome && (
         <h1 className={`text-3xl mb-8 transition-opacity duration-1000 ease-in-out ${fadeOut ? 'opacity-0' : 'opacity-100'}`}>
           Welcome back {username}!
         </h1>
       )}
 
-      {/* Headline / typewriter can always show */}
       <p className="text-lg text-white mb-4 max-w-xl text-center">
-        {/* ...Typewriter unchanged... */}
+        {/* optional typewriter or tagline */}
       </p>
 
-      {/* --- SELECTORS & CTA: only before submission --- */}
       {!hasSubmitted && (
         <>
           {/* Mood */}
@@ -251,14 +223,11 @@ const handleSaveMovie = async () => {
 
       {hasSubmitted && isLoading && (
         <div className="mt-10 relative flex items-center justify-center">
-          {/* TV GIF */}
           <img
             src="/animations/tv-loading-spinner.gif"
             alt="Loading..."
             className="w-40 h-40"
           />
-
-          {/* CRT overlay + pixel dots */}
           <div className="retro-loader-wrap">
             <div className="retro-scanlines"></div>
             <div className="flex flex-col items-center justify-center">
@@ -293,7 +262,6 @@ const handleSaveMovie = async () => {
               Pick {recIndex + 1} of {recBatch?.choices?.length ?? 0}
             </p>
 
-            {/* Change filters (reset) */}
             <button
               className="mt-6 px-4 py-2 text-sm font-semibold text-black bg-white/80 hover:bg-white border border-gray-300 rounded"
               onClick={() => {

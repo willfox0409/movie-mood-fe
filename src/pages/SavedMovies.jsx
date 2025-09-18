@@ -1,44 +1,35 @@
-import React, { useEffect, useState } from 'react';
-import MiniPoster from '../components/MiniPoster';
+import React, { useEffect, useState } from "react";
+import MiniPoster from "../components/MiniPoster";
+import { apiFetch } from "../api";
 
 function SavedMovies() {
   const [savedMovies, setSavedMovies] = useState([]);
   const [removingId, setRemovingId] = useState(null);
 
+  // Fetch saved movies on mount
   useEffect(() => {
-    const token = localStorage.getItem('token');
-
-    fetch('http://localhost:3000/api/v1/saved_movies', {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then((res) => res.json())
+    apiFetch("/saved_movies")
       .then((data) => {
-        // keep the saved_movie id!
         const movies = (data?.data || []).map(({ id, attributes }) => ({
           id, // saved_movie id
-          ...attributes, // includes title, poster_url, movie_id, etc.
+          ...attributes,
         }));
         setSavedMovies(movies);
       })
-      .catch((err) => console.error('Error fetching saved movies:', err));
+      .catch((err) => console.error("Error fetching saved movies:", err));
   }, []);
 
   const handleRemove = async (savedMovieId) => {
-    const token = localStorage.getItem('token');
     try {
       setRemovingId(savedMovieId);
-      const res = await fetch(`http://localhost:3000/api/v1/saved_movies/${savedMovieId}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
+
+      await apiFetch(`/saved_movies/${savedMovieId}`, {
+        method: "DELETE",
       });
 
-      if (res.ok) {
-        setSavedMovies((prev) => prev.filter((m) => m.id !== savedMovieId));
-      } else {
-        console.error('Failed to delete saved movie');
-      }
+      setSavedMovies((prev) => prev.filter((m) => m.id !== savedMovieId));
     } catch (e) {
-      console.error('Network error deleting movie:', e);
+      console.error("❌ Error deleting movie:", e);
     } finally {
       setRemovingId(null);
     }
@@ -51,7 +42,7 @@ function SavedMovies() {
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
         {savedMovies.map((movie) => (
           <MiniPoster
-            key={movie.id}                  // saved_movie id
+            key={movie.id} // saved_movie id
             id={movie.id}
             title={movie.title}
             posterPath={movie.poster_url}

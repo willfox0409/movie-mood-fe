@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { apiFetch } from "../api";
 
 function useAuth() {
   const [error, setError] = useState(null);
@@ -7,49 +8,36 @@ function useAuth() {
 
   const login = async (username, password) => {
     try {
-      const response = await fetch('http://localhost:3000/api/v1/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
+      const data = await apiFetch("/login", {
+        method: "POST",
+        body: JSON.stringify({ username, password }),
       });
 
-      const data = await response.json(); // parse it no matter what for logging
-
-      if (!response.ok) {
-        console.error("Login failed:", data);
-        setError(data.error || 'An error occurred.');
-        return null;
-      }
-
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('username', username);
-      navigate('/recommendations');
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("username", username);
+      navigate("/recommendations");
       return data;
-    } catch (error) {
-      console.error("Fetch error:", error);
-      setError('An error occurred. Please try again.');
+    } catch (err) {
+      console.error("Login failed:", err);
+      setError(err.message || "An error occurred.");
       return null;
     }
   };
 
   const signup = async (username, email, password) => {
     try {
-      const response = await fetch('http://localhost:3000/api/v1/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const data = await apiFetch("/signup", {
+        method: "POST",
         body: JSON.stringify({ username, email, password }),
       });
 
-      const data = await response.json();
-
-      if (!response.ok) throw new Error(data.errors || 'Signup failed');
-
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('username', username); 
-      navigate('/recommendations');
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("username", username);
+      navigate("/recommendations");
       return data;
     } catch (err) {
-      setError(err.message);
+      console.error("Signup failed:", err);
+      setError(err.message || "An error occurred.");
       return null;
     }
   };
