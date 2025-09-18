@@ -238,10 +238,12 @@ function MovieCard({
               <p className="text-sm opacity-80">{title}{release_year ? ` (${release_year})` : ''}</p>
             </div>
             <div className="space-y-3 font-mono">
-              <p className="text-sm"><span className="font-bold">Streaming:</span> Netflix, Hulu</p>
-              <p className="text-sm"><span className="font-bold">Buy:</span> Amazon Prime Video, Apple TV</p>
-              <p className="text-sm"><span className="font-bold">Rent:</span> YouTube, Google TV</p>
-              <p className="text-xs opacity-70">Placeholder data — JustWatch integration coming soon.</p>
+              <div className="rounded-md border border-yellow-400/60 bg-yellow-500/10 text-yellow-200 px-3 py-2 text-sm">
+                Placeholder only — JustWatch integration coming soon.
+              </div>
+              <p className="text-sm text-neutral-200">
+                This section will show real streaming, buy, and rent options once enabled.
+              </p>
             </div>
             <div className="mt-6 flex justify-end">
               <button
