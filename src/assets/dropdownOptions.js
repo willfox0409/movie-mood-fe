@@ -88,6 +88,8 @@ export const genres = [
 
 export const decades = [
   'Any Decade',
+  'Pre-1960',
+  'Post-1960',
   'Pre-1990',
   'Post-1990',
   '1960s',
