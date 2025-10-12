@@ -2,7 +2,22 @@ import React, { useState, useRef, useEffect } from 'react';
 import { moods, genres, decades, runtimes } from '../assets/dropdownOptions';
 import MovieCard from '../components/MovieCard';
 import { Typewriter } from 'react-simple-typewriter';
+
 import { apiFetch } from '../api';
+
+function removeAccents(str) {
+  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+function slugify(title, year = null) {
+  const base = removeAccents(title)
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-");
+
+  return year ? `${base}-${year}` : base;
+}
 
 function RecommendationsPage() {
   const username = localStorage.getItem('username');
@@ -27,6 +42,7 @@ function RecommendationsPage() {
   const [recommendation, setRecommendation] = useState(null); // current choice
 
   const [isLoading, setIsLoading] = useState(false);
+  const [widgetIsLoading, setWidgetIsLoading] = useState(false);
 
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const resultsRef = useRef(null);
@@ -111,6 +127,7 @@ function RecommendationsPage() {
   };
 
   const handleReroll = () => {
+    setWidgetIsLoading(true);
     if (!recBatch?.choices) return;
     const next = recIndex + 1;
     if (next >= recBatch.choices.length) {
@@ -120,6 +137,10 @@ function RecommendationsPage() {
     setRecIndex(next);
     setRecommendation(recBatch.choices[next]);
   };
+
+  const slug = recommendation?.title
+  ? slugify(recommendation.title)
+  : null;
 
   return (
     <div
@@ -256,7 +277,42 @@ function RecommendationsPage() {
                 onReroll={handleReroll}
                 compact
               />
+
+            {slug && (
+              <div className="mt-6 flex justify-center">
+                <a
+                  href={`https://www.justwatch.com/us/movie/${slug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="
+                    flex items-center justify-between gap-4 px-6 py-3 
+                    rounded-none font-sans font-medium text-black 
+                    bg-neutral-300 border border-neutral-500 
+                    shadow-[4px_4px_0px_rgba(0,0,0,0.3)] 
+                    hover:bg-neutral-400 hover:shadow-[2px_2px_0px_rgba(0,0,0,0.25)] 
+                    hover:translate-y-[1px] transition-all duration-150
+                  "
+                  style={{ fontFamily: 'Arial, sans-serif' }}
+                >
+                  <span className="text-sm sm:text-lg">See where to stream on</span>
+                  <img
+                    src="/images/just-watch-logo.jpg"
+                    alt="JustWatch logo"
+                    className="w-28 h-auto"
+                  />
+                </a>
+              </div>
+            )}
+
+              {console.log("🧪 Widget slug being passed:", slug) || null}
             </div>
+
+            <p
+              className="mt-2 text-sm text-white drop-shadow-md italic"
+              style={{ fontFamily: 'system-ui, sans-serif' }}
+            >
+              Not the right version? Search on JustWatch for others with this title.
+            </p>
 
             <p className="mt-4 text-sm opacity-80">
               Pick {recIndex + 1} of {recBatch?.choices?.length ?? 0}
